@@ -1,3 +1,4 @@
+import { HttpStatus } from '@/lib/http';
 import { Role } from '@/lib/roles';
 import { getCurrentUser } from '@/lib/session';
 import { UserStatus } from '@/lib/types';
@@ -8,13 +9,13 @@ export const PATCH = async (request: Request, { params }: RouteContext<'/api/use
   const user = await getCurrentUser();
 
   if (!user) {
-    return Response.json({ error: 'Not logged in' }, { status: 401 });
+    return Response.json({ error: 'Not logged in' }, { status: HttpStatus.Unauthorized });
   }
 
   const { id } = await params;
 
   if (!id) {
-    return Response.json({ error: 'User not Found' }, { status: 404 });
+    return Response.json({ error: 'User not Found' }, { status: HttpStatus.NotFound });
   }
 
   const body = (await request.json().catch(() => null)) as {
@@ -25,17 +26,17 @@ export const PATCH = async (request: Request, { params }: RouteContext<'/api/use
   } | null;
 
   if (!body) {
-    return Response.json({ error: 'Body must not be null' }, { status: 400 });
+    return Response.json({ error: 'Body must not be null' }, { status: HttpStatus.BadRequest });
   }
   //validation
   const input = await userUpdateSchema.validate(body).catch(() => null);
-  if (!input) return Response.json({ error: 'Invalid request body' }, { status: 400 });
+  if (!input) return Response.json({ error: 'Invalid request body' }, { status: HttpStatus.BadRequest });
 
   const result = updateUser({ actor: user, input: input, targetId: Number(id) });
 
   if (result.ok) {
-    return Response.json(result, { status: 200 });
+    return Response.json(result, { status: HttpStatus.Ok });
   }
 
-  return Response.json({ error: result.error }, { status: result.status });
+  return Response.json({ error: result.error }, { status: HttpStatus[result.status] });
 };

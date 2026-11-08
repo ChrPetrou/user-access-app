@@ -43,7 +43,7 @@ Import direction: `app` → `lib`, `app` → `components`. Never `lib` → `app`
 - **Never trust the request body.** Validate with the Yup schema (`.noUnknown().strict()`) before calling a service; never spread raw input into a stored user.
 - **Lists are paginated on the server.** API and pages return `paginate(...)` output; never send a full collection to the browser or slice in React.
 - **Each page guards itself.** `(private)/layout.tsx` does not re-run on client navigation, so a check there does not protect child pages.
-- **Status codes:** 401 not logged in · 403 logged in but not allowed · 404 unknown id · 409 conflicts with current state (last active IT, duplicate email) · 400 invalid body.
+- **Status codes come from the `HttpStatus` enum in `src/lib/http.ts`** — never a bare number. 401 not logged in · 403 logged in but not allowed · 404 unknown id · 409 conflicts with current state (last active IT, duplicate email) · 400 invalid body.
 
 ## Counter-intuitive on first contact
 

@@ -14,3 +14,15 @@ export const userUpdateSchema = Yup.object({
   .strict();
 
 export type UserUpdate = Yup.InferType<typeof userUpdateSchema>;
+
+export const userCreateSchema = Yup.object({
+  fullName: Yup.string().trim().required('Full name is required'),
+  email: Yup.string().trim().required('Email is required').email('Enter a valid email'),
+  password: Yup.string().required().min(8),
+  role: Yup.mixed<Role>().oneOf(ROLES).required(),
+  managerId: Yup.number().integer().nullable().defined()
+})
+  .noUnknown()
+  .strict();
+
+export type UserCreate = Yup.InferType<typeof userCreateSchema>;

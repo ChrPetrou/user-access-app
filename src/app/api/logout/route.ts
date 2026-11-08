@@ -1,3 +1,4 @@
+import { HttpStatus } from '@/lib/http';
 import { cookies } from 'next/headers';
 
 import { SESSION_COOKIE } from '@/lib/session';
@@ -11,5 +12,5 @@ export const POST = async () => {
   }
   cookieStore.delete(SESSION_COOKIE);
 
-  return Response.json({ message: 'Logged out' }, { status: 200 });
+  return Response.json({ message: 'Logged out' }, { status: HttpStatus.Ok });
 };
