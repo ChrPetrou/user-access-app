@@ -43,3 +43,11 @@ export const Button = ({ variant = 'primary', type = 'button', className = '', .
     {...props}
   />
 );
+
+// one "label: value" pair inside a <dl>
+export const Detail = ({ label, children }: { label: string; children: ReactNode }) => (
+  <div className="flex flex-col gap-1">
+    <dt className="text-xs font-medium tracking-wide text-muted uppercase">{label}</dt>
+    <dd className="text-sm text-text">{children}</dd>
+  </div>
+);

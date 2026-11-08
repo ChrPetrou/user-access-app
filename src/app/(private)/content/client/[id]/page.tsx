@@ -1,18 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import type { ReactNode } from 'react';
 import { LuArrowLeft } from 'react-icons/lu';
-import { Badge, Card, PageHeader } from '@/components/generic';
+import { Badge, Card, Detail, PageHeader } from '@/components/generic';
 import { getClient } from '@/lib/clients';
 import { canViewContent } from '@/lib/policy';
 import { requireCurrentUser } from '@/lib/session';
-
-const Detail = ({ label, children }: { label: string; children: ReactNode }) => (
-  <div className="flex flex-col gap-1">
-    <dt className="text-xs font-medium tracking-wide text-muted uppercase">{label}</dt>
-    <dd className="text-sm text-text">{children}</dd>
-  </div>
-);
 
 const ClientPage = async ({ params }: PageProps<'/content/client/[id]'>) => {
   await requireCurrentUser(canViewContent);

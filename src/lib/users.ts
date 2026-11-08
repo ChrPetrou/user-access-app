@@ -113,3 +113,5 @@ export const listManagerOptions = (): { id: number; fullName: string }[] =>
   [...getStore().users.values()]
     .filter(u => u.status === 'active' && canHaveReports(u))
     .map(({ id, fullName }) => ({ id, fullName }));
+
+export const getUserById = (id: number): User | null => getStore().users.get(id) ?? null;
