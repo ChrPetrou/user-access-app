@@ -14,5 +14,11 @@ export const GET = async (request: Request) => {
 
   const params = new URL(request.url).searchParams;
 
-  return Response.json(listClients(Number(params.get('page')), Number(params.get('limit'))));
+  const filters = {
+    search: params.get('search') ?? undefined,
+    status: params.get('status') ?? undefined,
+    country: params.get('country') ?? undefined
+  };
+
+  return Response.json(listClients(filters, Number(params.get('page')), Number(params.get('limit'))));
 };

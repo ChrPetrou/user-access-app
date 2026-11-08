@@ -71,7 +71,7 @@ UI-only (cosmetic, re-checked by the server): the sidebar link list in `(private
 | GET | `/api/users?page&limit` | IT (all), manager (direct reports) | paginated |
 | POST | `/api/users` | IT | `{ fullName, email, password, role, managerId }` → `201` |
 | PATCH | `/api/users/{id}` | per field, see rules | `{ fullName?, email?, role?, status? }` |
-| GET | `/api/clients?page&limit` | manager, user | paginated: `limit` defaults to 20, capped at 100 |
+| GET | `/api/clients?page&limit&search&status&country` | manager, user | filtered first (`search` matches name, company or email), then paginated: `limit` defaults to 20, capped at 100 |
 
 Status codes: `400` invalid body (Yup schema, unknown keys rejected — no mass assignment) · `401` not logged in · `403` logged in but not allowed · `404` unknown id · `409` conflicts with current state (last active IT, email already in use).
 
@@ -93,7 +93,7 @@ Edit `src/lib/roles.ts` only: add the name to `ROLES`, its permissions to `roleP
 
 1. **Automated tests for rules 1–6** (Vitest): unit tests on `policy.ts` and `users.ts` for every rule, plus a few HTTP-level tests for the scenarios — currently they are verified by scripted `curl` runs.
 2. **Handle demoting a manager who still has reports** (block with 409 or reassign).
-3. **Sorting and filtering** on the client table, kept in the URL (`?status=churned&sort=name`).
+3. **Sorting** on the client table (filters are done), kept in the URL like the filters (`?sort=name&dir=desc`).
 4. **Audit trail** of who changed what, shown on `/manage-users`.
 5. Loading and error states (`loading.tsx`, `error.tsx`), and expired-session cleanup.
 
