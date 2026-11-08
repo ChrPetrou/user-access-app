@@ -1,4 +1,3 @@
-import type { Page } from '@/lib/pagination';
 import type { UserCreate, UserUpdate } from '@/lib/schemas';
 import type { User } from '@/lib/types';
 
@@ -12,9 +11,6 @@ const request = async <T>(url: string, init?: RequestInit): Promise<ApiResult<T>
 };
 
 export const Agent = {
-  getUsers: ({ page, limit }: { page: number; limit: number }) =>
-    request<Page<User>>(`/api/users?page=${page}&limit=${limit}`),
-
   updateUser: (id: number, changes: UserUpdate) =>
     request<{ user: User }>(`/api/users/${id}`, { method: 'PATCH', body: JSON.stringify(changes) }),
 

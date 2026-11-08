@@ -17,7 +17,6 @@ Next.js 16 App Router, TypeScript strict (+ `noUncheckedIndexedAccess`), in-memo
 - `npm run dev` — dev server on :3000. Seed logins: see README (all `Password123!`).
 - `npm run build` — production build (also type-checks).
 - `npx tsc --noEmit` and `npm run lint` — must both pass before you finish.
-- `npm test` — permission-rule tests.
 
 ## Where things live
 
@@ -49,7 +48,7 @@ Import direction: `app` → `lib`, `app` → `components`. Never `lib` → `app`
 
 - **Roles are not hierarchical.** IT has no `view content pages` → IT gets 403 on `/content`. That is correct; do not "fix" it.
 - **Two edit permissions.** `edit name/email` = any user; `edit name/email of own reports` = only `target.managerId === actor.id`, never self, never other managers.
-- **Rule 4 is checked before the self check** in `updateUser`, so the last active IT deactivating/demoting themself gets 409 ("at least one active IT account"), not 403. Only actors whose role *could* change status/role see the 409; others get 403.
+- **Rule 4 is checked before the self check** in `updateUser`, so the last active IT deactivating/demoting themself gets 409 ("at least one active IT account"), not 403. Only actors whose role _could_ change status/role see the 409; others get 403.
 - **Deactivation is immediate** because `getCurrentUser` re-reads the user on every request. Never cache the user (no user data in the cookie, no `'use cache'` on user lookups; `cacheComponents` is off for this reason).
 - **Server components call `lib/` directly**; only client components `fetch('/api/...')`. A server-side `fetch` to our own API has no cookie and a relative URL fails.
 - **Next 16:** `params` / `searchParams` are Promises; `forbidden()` needs `experimental.authInterrupts` (already on); there is no middleware/proxy.
@@ -61,4 +60,4 @@ Import direction: `app` → `lib`, `app` → `components`. Never `lib` → `app`
 2. If it needs a new capability, add a string to `permissions` and one `can*` function in `policy.ts`; use it from the service/page.
 3. `src/lib/seed.ts`: add one account; list it in the README.
 4. Nothing else should change — sidebar, pages, API and validation read `ROLES` / permissions. If you find yourself writing the new role's name anywhere else, stop: that is the bug.
-5. `npx tsc --noEmit`, `npm run lint`, `npm test`.
+5. `npx tsc --noEmit` and `npm run lint`; then log in as each seeded role (README) and re-check rules 1–6 against the API.
