@@ -34,14 +34,14 @@ export const hasPermission = (role: Role, permission: Permission): boolean => {
   return rolePerms.includes(permission);
 };
 
-// where each role lands after login (scenario 10). Record<Role, …> makes a new role without a home a compile error.
+// where each role lands after login. Record<Role, …> makes a new role without a home a compile error.
 export const roleHome: Record<Role, string> = {
   IT: '/manage-users',
   manager: '/content',
   user: '/content'
 };
 
-// Rule 4 ("never zero active IT") is the one rule about a role's identity rather than a permission.
+// "Never zero active IT accounts" is the one check about a role's identity rather than a permission.
 export const IT_ROLE: Role = 'IT';
 
 // preselected role in the "Add user" form

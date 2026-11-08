@@ -21,13 +21,13 @@ Every account uses the password **`Password123!`**
 
 | Name | Email | Role | Status | Manager | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Ivan Petrenko | ivan.it@example.com | IT | active | — | scenarios 10–12 |
-| Iryna Koval | iryna.it@example.com | IT | active | — | the second IT account (rule 4) |
+| Ivan Petrenko | ivan.it@example.com | IT | active | — | lands on /manage-users |
+| Iryna Koval | iryna.it@example.com | IT | active | — | the second IT account (so the last-IT check can be tried) |
 | Anna Shevchenko | anna.manager@example.com | manager | active | — | four direct reports |
 | Bohdan Melnyk | bohdan.manager@example.com | manager | active | — | manages Dmytro and Halyna |
 | Maksym Bondar | maksym.manager@example.com | manager | active | — | no direct reports |
 | Dana Kravets | dana.manager@example.com | manager | **deactivated** | — | cannot log in |
-| Olena Tkachenko | olena.user@example.com | user | active | Anna | scenario 12 |
+| Olena Tkachenko | olena.user@example.com | user | active | Anna | |
 | Petro Lysenko | petro.user@example.com | user | active | Anna |  |
 | Sofia Moroz | sofia.user@example.com | user | active | Anna |  |
 | Yurii Savchenko | yurii.user@example.com | user | active | Anna |  |
@@ -38,7 +38,7 @@ Every account uses the password **`Password123!`**
 
 Plus **1,200 generated clients** (about 26% churned), produced by a seeded generator so client 42 is the same record after every restart.
 
-## Auth approach, and how rule 5 works
+## Auth approach, and how deactivation takes effect immediately
 
 **Server-side sessions with an httpOnly cookie.**
 
@@ -48,7 +48,7 @@ Plus **1,200 generated clients** (about 26% churned), produced by a seeded gener
 
 **Why not a JWT:** a JWT carries the user's role and status inside the token, so a deactivated user's token stays valid until it expires. Revoking it immediately needs a server-side lookup anyway — at which point a plain session is simpler.
 
-**Rule 5:** every request goes through `getCurrentUser()` in `src/lib/session.ts`, which reads the cookie, finds the session, then **looks the user up fresh in the store and requires `status === 'active'`**. Nothing about the user is cached between requests (Next's `cacheComponents` is off for this reason). So when IT deactivates someone, their very next request — page or API — gets `401` / a redirect to `/login`, with the same cookie they already had.
+**Immediate deactivation:** every request goes through `getCurrentUser()` in `src/lib/session.ts`, which reads the cookie, finds the session, then **looks the user up fresh in the store and requires `status === 'active'`**. Nothing about the user is cached between requests (Next's `cacheComponents` is off for this reason). So when IT deactivates someone, their very next request — page or API — gets `401` / a redirect to `/login`, with the same cookie they already had.
 
 Passwords: the brief says hashing isn't required. It is done anyway (`node:crypto` scrypt with a per-user salt) because it was a few lines and keeps passwords out of the `User` object — credentials live in a separate map, so a `User` sent to the browser can never contain one.
 
@@ -56,7 +56,7 @@ Passwords: the brief says hashing isn't required. It is done anyway (`node:crypt
 
 1. **`src/lib/roles.ts`** — `rolePermissions` maps each role to its permissions; `hasPermission(role, permission)`. The only file that lists roles.
 2. **`src/lib/policy.ts`** — every decision about an actor (and target): `canCreateUser`, `canEditProfile` (any user vs. own direct reports, never self), `canChangeRole` / `canChangeStatus` (never self), `canViewContent`, `canAccessUserManagement`, `canHaveReports`.
-3. **`src/lib/users.ts`** — `updateUser` and `createUser` apply the policy per field that was sent, plus the invariants: rule 4 (never zero active IT), unique email, `managerId` must point to someone who can have reports. `listUsers` filters with `canEditProfile`.
+3. **`src/lib/users.ts`** — `updateUser` and `createUser` apply the policy per field that was sent, plus the invariants: never zero active IT accounts, unique email, `managerId` must point to someone who can have reports. `listUsers` filters with `canEditProfile`.
 4. **`src/lib/session.ts`** — `requireCurrentUser(check)`: not logged in → `/login`, check fails → 403 page. Every private page calls it with its policy check.
 5. **API route handlers** — `GET /api/users` (`canAccessUserManagement`) and `GET /api/clients` (`canViewContent`); `PATCH`/`POST /api/users` delegate to the service above.
 
@@ -70,14 +70,14 @@ UI-only (cosmetic, re-checked by the server): the sidebar link list in `(private
 | POST | `/api/logout` | logged in |  |
 | GET | `/api/users?page&limit` | IT (all), manager (direct reports) | paginated |
 | POST | `/api/users` | IT | `{ fullName, email, password, role, managerId }` → `201` |
-| PATCH | `/api/users/{id}` | per field, see rules | `{ fullName?, email?, role?, status? }` |
+| PATCH | `/api/users/{id}` | allowed per field (see the permission list above) | `{ fullName?, email?, role?, status? }` |
 | GET | `/api/clients?page&limit&search&status&country` | manager, user | filtered first (`search` matches name, company or email), then paginated: `limit` defaults to 20, capped at 100 |
 
 Status codes: `400` invalid body (Yup schema, unknown keys rejected — no mass assignment) · `401` not logged in · `403` logged in but not allowed · `404` unknown id · `409` conflicts with current state (last active IT, email already in use).
 
 ## Design decisions
 
-- **403 vs 409.** Deactivating yourself is `403` (rule 3: you're never allowed). Deactivating or demoting the **last active IT** is `409` (you'd be allowed, but the current state forbids it). The rule-4 check runs before the self check, so in scenario 11 Ivan's second attempt fails with a different reason. Only actors who could change status/role at all see the 409; others get the plain 403.
+- **403 vs 409.** Deactivating yourself is `403` (you can never deactivate or demote yourself). Deactivating or demoting the **last active IT** is `409` (you'd be allowed, but the current state forbids it). The last-IT check runs before the self check, so the last active IT trying to deactivate themself gets the last-IT reason, not the self one. Only actors who could change status/role at all see the 409; others get the plain 403.
 - **No partial updates.** Every check runs before anything is written: a request that changes a name _and_ a forbidden field changes nothing.
 - **Managers can edit deactivated direct reports' name/email** — the brief scopes manager edits by `managerId`, not by status.
 - **A user whose manager is deactivated** (Taras) keeps working normally; only IT can edit him until he is reassigned.
@@ -91,11 +91,12 @@ Edit `src/lib/roles.ts` only: add the name to `ROLES`, its permissions to `roleP
 
 ## What I'd do with another four hours
 
-1. **Automated tests for rules 1–6** (Vitest): unit tests on `policy.ts` and `users.ts` for every rule, plus a few HTTP-level tests for the scenarios — currently they are verified by scripted `curl` runs.
+1. **Automated tests for the permission checks** (Vitest): unit tests on `policy.ts` and `users.ts` for every case, plus a few HTTP-level tests through the API — currently these are verified by scripted `curl` runs.
 2. **Handle demoting a manager who still has reports** (block with 409 or reassign).
 3. **Sorting** on the client table (filters are done), kept in the URL like the filters (`?sort=name&dir=desc`).
 4. **Audit trail** of who changed what, shown on `/manage-users`.
-5. Loading and error states (`loading.tsx`, `error.tsx`), and expired-session cleanup.
+5. **Loading states, client-side.** Today pages render on the server with in-memory data, so there is nothing to wait for; the forms already disable their button and show "Saving…" / "Creating…" while the request runs. With real latency I would move the tables to client-side fetching: a `'use client'` table component with an `isLoading` state, set to `true` before calling the API agent (`Agent.getClients({ page, limit, ...filters })`) and back to `false` when the page arrives, showing a skeleton meanwhile (or SWR, which gives `isLoading` for free). The page itself stays a server component that runs `requireCurrentUser(...)` first, so a refused user still gets a real 403. I would **not** use a route-level `loading.tsx` above a guarded page: it starts streaming before the permission check, so `forbidden()` / `notFound()` would answer with HTTP 200 instead of 403 / 404.
+6. Error states (`error.tsx`) and expired-session cleanup.
 
 ## AI use
 
