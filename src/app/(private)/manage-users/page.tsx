@@ -1,9 +1,11 @@
 import { Badge, Card, PageHeader } from '@/components/generic';
 import Pagination from '@/components/pagination';
 import GridTable from '@/components/Table/GridTable';
-import { canAccessUserManagement } from '@/lib/policy';
+import { canAccessUserManagement, canChangeRole, canChangeStatus, canEditProfile } from '@/lib/policy';
 import { requireCurrentUser } from '@/lib/session';
 import { listUsers } from '@/lib/users';
+import React from 'react';
+import EditUser from './editUser/EditUser';
 
 const ManageUsersPage = async ({ searchParams }: PageProps<'/manage-users'>) => {
   const user = await requireCurrentUser(canAccessUserManagement);
@@ -20,7 +22,7 @@ const ManageUsersPage = async ({ searchParams }: PageProps<'/manage-users'>) => 
         ) : (
           <>
             <div className="min-h-0 flex-1 overflow-auto">
-              <GridTable headers={['Full name', 'Email', 'Role', 'Status']}>
+              <GridTable headers={['Full name', 'Email', 'Role', 'Status', 'Edit']}>
                 {({ Row, Field }) =>
                   result.items.map(u => (
                     <Row key={u.id}>
@@ -29,6 +31,16 @@ const ManageUsersPage = async ({ searchParams }: PageProps<'/manage-users'>) => 
                       <Field>{u.role}</Field>
                       <Field>
                         <Badge tone={u.status === 'active' ? 'success' : 'danger'}>{u.status}</Badge>
+                      </Field>
+                      <Field>
+                        <EditUser
+                          user={u}
+                          can={{
+                            profile: canEditProfile(user, u),
+                            role: canChangeRole(user, u),
+                            status: canChangeStatus(user, u)
+                          }}
+                        />
                       </Field>
                     </Row>
                   ))

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 
 const VISIBLE_PAGES = 5;
 const PAGE_SIZES = [10, 20, 50, 100];
@@ -9,7 +10,7 @@ const PAGE_SIZES = [10, 20, 50, 100];
 type Props = { page: number; totalPages: number; totalItems: number; limit: number };
 
 const itemClass = (active: boolean) =>
-  `block min-w-8 rounded border px-2 py-1 text-center text-sm ${active ? 'border-primary text-primary' : 'border-transparent text-text hover:bg-page'}`;
+  `flex min-w-8 items-center justify-center rounded border px-2 py-1 text-center text-sm ${active ? 'border-primary text-primary' : 'border-transparent text-text hover:bg-page'}`;
 
 const Pagination = ({ page, totalPages, totalItems, limit }: Props) => {
   const pathname = usePathname();
@@ -35,10 +36,12 @@ const Pagination = ({ page, totalPages, totalItems, limit }: Props) => {
         <li>
           {page > 1 ? (
             <Link href={urlWith({ page: page - 1 })} className={itemClass(false)} aria-label="Previous page">
-              ‹
+              <LuChevronLeft size={16} />
             </Link>
           ) : (
-            <span className={`${itemClass(false)} opacity-50`}>‹</span>
+            <span className={`${itemClass(false)} opacity-50`}>
+              <LuChevronLeft size={16} />
+            </span>
           )}
         </li>
         {pages.map(n => (
@@ -54,10 +57,12 @@ const Pagination = ({ page, totalPages, totalItems, limit }: Props) => {
         <li>
           {page < totalPages ? (
             <Link href={urlWith({ page: page + 1 })} className={itemClass(false)} aria-label="Next page">
-              ›
+              <LuChevronRight size={16} />
             </Link>
           ) : (
-            <span className={`${itemClass(false)} opacity-50`}>›</span>
+            <span className={`${itemClass(false)} opacity-50`}>
+              <LuChevronRight size={16} />
+            </span>
           )}
         </li>
       </ul>

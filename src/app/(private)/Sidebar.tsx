@@ -2,45 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import type { ReactNode } from 'react';
+import type { IconType } from 'react-icons';
+import { LuBriefcase, LuHouse, LuLogOut, LuUser, LuUsers } from 'react-icons/lu';
 import type { Role } from '@/lib/roles';
 
 export type IconName = 'home' | 'clients' | 'profile' | 'users';
 
-const Icon = ({ children }: { children: ReactNode }) => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    {children}
-  </svg>
-);
-
-const ICONS: Record<IconName, ReactNode> = {
-  home: <path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
-  clients: (
-    <>
-      <rect x="3" y="7" width="18" height="13" rx="2" />
-      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    </>
-  ),
-  profile: (
-    <>
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21a8 8 0 0 1 16 0" />
-    </>
-  ),
-  users: (
-    <>
-      <circle cx="9" cy="8" r="3.5" />
-      <path d="M2 20a7 7 0 0 1 14 0M16 4.5a3.5 3.5 0 0 1 0 7M18 20a7 7 0 0 0-2.5-5.4" />
-    </>
-  )
+// the layout (server) passes a name; the component lives here because components can't be sent from server to client
+const ICONS: Record<IconName, IconType> = {
+  home: LuHouse,
+  clients: LuBriefcase,
+  profile: LuUser,
+  users: LuUsers
 };
 
 type Props = {
@@ -71,17 +44,20 @@ const Sidebar = ({ links, fullName, role }: Props) => {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 p-3">
-        {links.map(link => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`flex items-center gap-3 rounded px-3 py-2.5 text-sm ${
-              link.href === active ? 'bg-primary-light font-medium text-primary' : 'text-text hover:bg-page'
-            }`}>
-            <Icon>{ICONS[link.icon]}</Icon>
-            {link.label}
-          </Link>
-        ))}
+        {links.map(link => {
+          const Icon = ICONS[link.icon];
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-3 rounded px-3 py-2.5 text-sm ${
+                link.href === active ? 'bg-primary-light font-medium text-primary' : 'text-text hover:bg-page'
+              }`}>
+              <Icon size={18} />
+              {link.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="border-t border-border p-3">
@@ -93,9 +69,7 @@ const Sidebar = ({ links, fullName, role }: Props) => {
           type="button"
           onClick={logout}
           className="flex w-full cursor-pointer items-center gap-3 rounded px-3 py-2.5 text-sm text-danger hover:bg-page">
-          <Icon>
-            <path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l-5-5 5-5M5 12h11" />
-          </Icon>
+          <LuLogOut size={18} />
           Log out
         </button>
       </div>

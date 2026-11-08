@@ -1,12 +1,11 @@
 import { Page, paginate } from './pagination';
 import { canChangeRole, canChangeStatus, canEditProfile, canSeeInUserList } from './policy';
-import { hasPermission, Role } from './roles';
+import { hasPermission } from './roles';
+import type { UserUpdate } from './schemas';
 import { getStore } from './store';
-import { User, UserStatus } from './types';
+import type { User } from './types';
 
 type UpdateResult = { ok: true; user: User } | { ok: false; status: 403 | 404 | 409; error: string };
-
-type UserUpdate = { fullName?: string; email?: string; role?: Role; status?: UserStatus };
 
 export const listUsers = (actor: User, page: number, limit: number): Page<User> => {
   const store = getStore();
