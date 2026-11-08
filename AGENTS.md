@@ -57,7 +57,7 @@ Import direction: `app` → `lib`, `app` → `components`. Never `lib` → `app`
 
 ## Adding a fourth role
 
-1. `src/lib/roles.ts`: add the name to `ROLES` and its permissions to `rolePermissions` (the `Record<Role, …>` type makes a missing entry a compile error).
+1. `src/lib/roles.ts`: add the name to `ROLES`, its permissions to `rolePermissions`, and its landing page to `roleHome` (both are `Record<Role, …>`, so a missing entry is a compile error).
 2. If it needs a new capability, add a string to `permissions` and one `can*` function in `policy.ts`; use it from the service/page.
 3. `src/lib/seed.ts`: add one account; list it in the README.
 4. Nothing else should change — sidebar, pages, API and validation read `ROLES` / permissions. If you find yourself writing the new role's name anywhere else, stop: that is the bug.

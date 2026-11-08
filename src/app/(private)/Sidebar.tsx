@@ -3,14 +3,13 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import type { IconType } from 'react-icons';
-import { LuBriefcase, LuHouse, LuLogOut, LuUser, LuUsers } from 'react-icons/lu';
+import { LuBriefcase, LuLogOut, LuUser, LuUsers } from 'react-icons/lu';
 import type { Role } from '@/lib/roles';
 
-export type IconName = 'home' | 'clients' | 'profile' | 'users';
+export type IconName = 'clients' | 'profile' | 'users';
 
 // the layout (server) passes a name; the component lives here because components can't be sent from server to client
 const ICONS: Record<IconName, IconType> = {
-  home: LuHouse,
   clients: LuBriefcase,
   profile: LuUser,
   users: LuUsers

@@ -6,7 +6,6 @@ import Sidebar, { type IconName } from './Sidebar';
 
 // every sidebar link, with the policy check that decides who sees it
 const LINKS: { href: string; label: string; icon: IconName; canSee: (user: User) => boolean }[] = [
-  { href: '/', label: 'Home', icon: 'home', canSee: () => true },
   { href: '/content', label: 'Clients', icon: 'clients', canSee: canViewContent },
   { href: '/content/me', label: 'My profile', icon: 'profile', canSee: canViewContent },
   { href: '/manage-users', label: 'Manage users', icon: 'users', canSee: canAccessUserManagement }

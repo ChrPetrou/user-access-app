@@ -7,7 +7,7 @@ const PrivateNotFound = () => (
     <PageHeader title="Page not found" subtitle="The page or record you are looking for does not exist." />
     <Card>
       <Link href="/" className="text-sm font-medium text-primary hover:underline">
-        Go to home
+        Go to start page
       </Link>
     </Card>
   </>

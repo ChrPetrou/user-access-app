@@ -33,3 +33,10 @@ export const hasPermission = (role: Role, permission: Permission): boolean => {
   const rolePerms = rolePermissions[role];
   return rolePerms.includes(permission);
 };
+
+// where each role lands after login (scenario 10). Record<Role, …> makes a new role without a home a compile error.
+export const roleHome: Record<Role, string> = {
+  IT: '/manage-users',
+  manager: '/content',
+  user: '/content'
+};

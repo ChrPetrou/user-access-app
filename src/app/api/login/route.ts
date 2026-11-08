@@ -1,3 +1,4 @@
+import { roleHome } from '@/lib/roles';
 import { HttpStatus } from '@/lib/http';
 import { cookies } from 'next/headers';
 import { hashPassword, verifyPassword } from '@/lib/password';
@@ -40,5 +41,8 @@ export const POST = async (request: Request) => {
     maxAge: 60 * 60 * 24
   });
 
-  return Response.json({ user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role } });
+  return Response.json({
+    user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role },
+    home: roleHome[user.role]
+  });
 };
