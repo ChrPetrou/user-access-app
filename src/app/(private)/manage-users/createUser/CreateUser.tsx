@@ -8,7 +8,7 @@ import { LuPlus } from 'react-icons/lu';
 import { FormField, inputClass } from '@/components/form';
 import { Button } from '@/components/generic';
 import Modal from '@/components/Modal';
-import { ROLES } from '@/lib/roles';
+import { DEFAULT_ROLE, ROLES } from '@/lib/roles';
 import { userCreateSchema, type UserCreate } from '@/lib/schemas';
 import { Agent } from '@/utils/apiAgent';
 
@@ -25,7 +25,7 @@ const CreateUserForm = ({ managers, onDone }: { managers: ManagerOption[]; onDon
     formState: { errors, isSubmitting }
   } = useForm<UserCreate>({
     resolver: yupResolver(userCreateSchema),
-    defaultValues: { fullName: '', email: '', password: '', role: 'user', managerId: null }
+    defaultValues: { fullName: '', email: '', password: '', role: DEFAULT_ROLE, managerId: null }
   });
 
   const onSubmit = async (values: UserCreate) => {

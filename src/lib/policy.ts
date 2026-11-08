@@ -26,8 +26,6 @@ export const canChangeStatus = (actor: User, target: User): boolean =>
 export const canViewContent = (actor: User): boolean =>
   isActive(actor) && hasPermission(actor.role, 'view content pages');
 
-export const canSeeInUserList = (actor: User, target: User): boolean => canEditProfile(actor, target);
-
 export const canAccessUserManagement = (actor: User): boolean =>
   isActive(actor) &&
   (hasPermission(actor.role, 'edit name/email') || hasPermission(actor.role, 'edit name/email of own reports'));

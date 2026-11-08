@@ -1,14 +1,7 @@
 import type { StatusName } from './http';
 import { Page, paginate } from './pagination';
-import {
-  canChangeRole,
-  canChangeStatus,
-  canCreateUser,
-  canEditProfile,
-  canHaveReports,
-  canSeeInUserList
-} from './policy';
-import { hasPermission } from './roles';
+import { canChangeRole, canChangeStatus, canCreateUser, canEditProfile, canHaveReports } from './policy';
+import { hasPermission, IT_ROLE } from './roles';
 import type { UserCreate, UserUpdate } from './schemas';
 import { hashPassword } from './password';
 import { getStore } from './store';
@@ -19,7 +12,7 @@ type UpdateResult =
 
 export const listUsers = (actor: User, page: number, limit: number): Page<User> => {
   const store = getStore();
-  const users = [...store.users.values()].filter(user => canSeeInUserList(actor, user));
+  const users = [...store.users.values()].filter(user => canEditProfile(actor, user));
   return paginate(users, page, limit);
 };
 
@@ -39,14 +32,15 @@ export const updateUser = ({
     return { ok: false, status: 'NotFound', error: 'User not Found' };
   }
 
-  const lastIT = [...store.users.values()].filter(user => user.role === 'IT' && user.status === 'active').length <= 1;
+  const lastIT =
+    [...store.users.values()].filter(user => user.role === IT_ROLE && user.status === 'active').length <= 1;
   const emailExist = [...store.users.values()].some(user => user.email === email && user.id !== target.id);
 
   //check for last it
   if (
-    target.role === 'IT' &&
+    target.role === IT_ROLE &&
     target.status === 'active' &&
-    (input.status === 'deactivated' || (input.role !== undefined && input.role !== 'IT')) &&
+    (input.status === 'deactivated' || (input.role !== undefined && input.role !== IT_ROLE)) &&
     lastIT &&
     hasPermission(actor.role, 'activate / deactivate')
   ) {

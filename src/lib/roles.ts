@@ -40,3 +40,9 @@ export const roleHome: Record<Role, string> = {
   manager: '/content',
   user: '/content'
 };
+
+// Rule 4 ("never zero active IT") is the one rule about a role's identity rather than a permission.
+export const IT_ROLE: Role = 'IT';
+
+// preselected role in the "Add user" form
+export const DEFAULT_ROLE: Role = 'user';
