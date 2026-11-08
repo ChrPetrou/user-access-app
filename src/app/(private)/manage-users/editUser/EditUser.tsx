@@ -2,10 +2,11 @@
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'next/navigation';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { LuPencil } from 'react-icons/lu';
 import { Button } from '@/components/generic';
+import { FormField, inputClass } from '@/components/form';
 import Modal from '@/components/Modal';
 import { ROLES } from '@/lib/roles';
 import { userUpdateSchema, type UserUpdate } from '@/lib/schemas';
@@ -16,17 +17,6 @@ import { Agent } from '@/utils/apiAgent';
 export type EditPermissions = { profile: boolean; role: boolean; status: boolean };
 
 type Props = { user: User; can: EditPermissions };
-
-const inputClass =
-  'w-full rounded border border-border px-3 py-2 text-sm text-text focus:border-primary focus:ring-2 focus:ring-primary-light focus:outline-none';
-
-const FormField = ({ label, error, children }: { label: string; error?: string; children: ReactNode }) => (
-  <label className="flex flex-col gap-1 text-sm font-medium text-text">
-    {label}
-    {children}
-    {error && <span className="text-xs font-normal text-danger">{error}</span>}
-  </label>
-);
 
 const EditUserForm = ({ user, can, onDone }: Props & { onDone: () => void }) => {
   const router = useRouter();

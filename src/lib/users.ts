@@ -1,6 +1,13 @@
 import type { StatusName } from './http';
 import { Page, paginate } from './pagination';
-import { canChangeRole, canChangeStatus, canCreateUser, canEditProfile, canSeeInUserList } from './policy';
+import {
+  canChangeRole,
+  canChangeStatus,
+  canCreateUser,
+  canEditProfile,
+  canHaveReports,
+  canSeeInUserList
+} from './policy';
 import { hasPermission } from './roles';
 import type { UserCreate, UserUpdate } from './schemas';
 import { hashPassword } from './password';
@@ -78,7 +85,7 @@ export const createUser = ({ actor, input }: { actor: User; input: UserCreate })
   // a manager is anyone whose role can have reports — asked by permission, not by role name
   if (input.managerId !== null) {
     const manager = store.users.get(input.managerId);
-    if (!manager || !hasPermission(manager.role, 'edit name/email of own reports')) {
+    if (!manager || !canHaveReports(manager)) {
       return { ok: false, status: 'BadRequest', error: 'managerId must point to a manager' };
     }
   }
@@ -100,3 +107,9 @@ export const createUser = ({ actor, input }: { actor: User; input: UserCreate })
 
   return { ok: true, user };
 };
+
+// options for the "Manager" dropdown when creating a user — active users whose role can have reports
+export const listManagerOptions = (): { id: number; fullName: string }[] =>
+  [...getStore().users.values()]
+    .filter(u => u.status === 'active' && canHaveReports(u))
+    .map(({ id, fullName }) => ({ id, fullName }));

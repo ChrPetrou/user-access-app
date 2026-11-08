@@ -31,3 +31,6 @@ export const canSeeInUserList = (actor: User, target: User): boolean => canEditP
 export const canAccessUserManagement = (actor: User): boolean =>
   isActive(actor) &&
   (hasPermission(actor.role, 'edit name/email') || hasPermission(actor.role, 'edit name/email of own reports'));
+
+// who may be set as someone's managerId — any role that can manage its own reports
+export const canHaveReports = (user: User): boolean => hasPermission(user.role, 'edit name/email of own reports');

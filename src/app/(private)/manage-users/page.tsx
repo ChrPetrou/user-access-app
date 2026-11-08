@@ -1,20 +1,26 @@
 import { Badge, Card, PageHeader } from '@/components/generic';
 import Pagination from '@/components/pagination';
 import GridTable from '@/components/Table/GridTable';
-import { canAccessUserManagement, canChangeRole, canChangeStatus, canEditProfile } from '@/lib/policy';
+import { canAccessUserManagement, canChangeRole, canChangeStatus, canCreateUser, canEditProfile } from '@/lib/policy';
 import { requireCurrentUser } from '@/lib/session';
-import { listUsers } from '@/lib/users';
+import { listManagerOptions, listUsers } from '@/lib/users';
 import React from 'react';
+import CreateUser from './createUser/CreateUser';
 import EditUser from './editUser/EditUser';
 
 const ManageUsersPage = async ({ searchParams }: PageProps<'/manage-users'>) => {
   const user = await requireCurrentUser(canAccessUserManagement);
   const { page, limit } = await searchParams;
   const result = listUsers(user, Number(page), Number(limit));
+  const managers = listManagerOptions();
 
   return (
     <>
-      <PageHeader title="Manage users" subtitle="Search and manage user accounts" />
+      <PageHeader
+        title="Manage users"
+        subtitle="Search and manage user accounts"
+        action={canCreateUser(user) && <CreateUser managers={managers} />}
+      />
 
       <Card className="flex min-h-0 flex-1 flex-col gap-4">
         {result.totalItems === 0 ? (
